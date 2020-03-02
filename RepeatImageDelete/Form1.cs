@@ -53,6 +53,7 @@ namespace RepeatImageDelete
                     allFileNum = GetFilesCount(new DirectoryInfo(folderPath));
                     listFileOrFolder(new DirectoryInfo(folderPath));
                     MessageBox.Show("扫描完成");
+                    _syncContext.Post(setProgress, 0);
                     _syncContext.Post(checkButtonStatus, "");
                 });
                 task1.Start();
@@ -75,6 +76,7 @@ namespace RepeatImageDelete
                 allFileNum = GetFilesCount(new DirectoryInfo(folderPath));
                 listFileOrFolder(new DirectoryInfo(folderPath));
                 MessageBox.Show("扫描完成");
+                _syncContext.Post(setProgress, 0);
                 _syncContext.Post(checkButtonStatus, "");
             });
             task1.Start();
@@ -124,7 +126,7 @@ namespace RepeatImageDelete
                         {
                             originImagesVKList.Add(item.FullName, fileMd5);
                             originImagesList.Add(fileMd5, item.FullName);
-                            _syncContext.Post(setProgress, Convert.ToDouble(scanNum)/ Convert.ToDouble(allFileNum)*100);
+                            _syncContext.Post(setProgress, Convert.ToDouble(scanNum) / Convert.ToDouble(allFileNum) * 100);
                             _syncContext.Post(originImagesAddItem, item.FullName);
                             scanNum++;
                         }
@@ -316,7 +318,11 @@ namespace RepeatImageDelete
             repeatImages.Items.Clear();
             repeatNum = 0;
             deleteProgressBar.Value = 0;
-            listFileOrFolder(new DirectoryInfo(folderPath));
+            var task1 = new Task(() =>
+            {
+                listFileOrFolder(new DirectoryInfo(folderPath));
+            });
+            task1.Start();
             MessageBox.Show("删除成功 共" + deleteNum.ToString() + "张");
         }
 
@@ -330,7 +336,11 @@ namespace RepeatImageDelete
             deleteProgressBar.Value = 0;
             repeatNum = 0;
             currentFileRepeat.Text = "当前图片重复数量：" + 0;
-            listFileOrFolder(new DirectoryInfo(folderPath));
+            var task1 = new Task(() =>
+            {
+                listFileOrFolder(new DirectoryInfo(folderPath));
+            });
+            task1.Start();
         }
 
         private void next_Click(object sender, EventArgs e)
@@ -415,7 +425,11 @@ namespace RepeatImageDelete
             repeatNum = 0;
             deleteProgressBar.Value = 0;
             currentFileRepeat.Text = "当前图片重复数量：" + 0;
-            listFileOrFolder(new DirectoryInfo(folderPath));
+            var task1 = new Task(() =>
+            {
+                listFileOrFolder(new DirectoryInfo(folderPath));
+            });
+            task1.Start();
             MessageBox.Show("删除成功 共" + deleteNum.ToString() + "张");
         }
 
