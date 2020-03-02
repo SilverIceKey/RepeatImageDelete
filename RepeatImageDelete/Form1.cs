@@ -166,6 +166,25 @@ namespace RepeatImageDelete
             }
         }
 
+
+        private void repeatImages_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (repeatImages.SelectedItem == null)
+            {
+                return;
+            }
+            foreach (var images in repeatImageList)
+            {
+                foreach (var image in images.Value)
+                {
+                    if (image.Equals(repeatImages.SelectedItem.ToString()))
+                    {
+                       originImages.SelectedItem = originImagesList[images.Key];
+                    }
+                }
+            }
+        }
+
         private void originImages_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (originImages.SelectedItem==null)

@@ -1,4 +1,6 @@
-﻿namespace RepeatImageDelete
+﻿using System;
+
+namespace RepeatImageDelete
 {
     partial class Form1
     {
@@ -84,6 +86,7 @@
             this.repeatImages.Name = "repeatImages";
             this.repeatImages.Size = new System.Drawing.Size(440, 268);
             this.repeatImages.TabIndex = 3;
+            this.repeatImages.SelectedIndexChanged += new System.EventHandler(this.repeatImages_SelectedIndexChanged);
             // 
             // originImage
             // 
