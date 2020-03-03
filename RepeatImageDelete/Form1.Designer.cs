@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 
 namespace RepeatImageDelete
 {
@@ -44,6 +45,9 @@ namespace RepeatImageDelete
             this.currentFileRepeat = new System.Windows.Forms.Label();
             this.next = new System.Windows.Forms.Button();
             this.deleteSelectedAll = new System.Windows.Forms.Button();
+            this.originFileSize = new System.Windows.Forms.Label();
+            this.repeatFileSize = new System.Windows.Forms.Label();
+            this.isVideoOn = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.originImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repeatImage)).BeginInit();
             this.SuspendLayout();
@@ -72,36 +76,38 @@ namespace RepeatImageDelete
             // 
             this.originImages.FormattingEnabled = true;
             this.originImages.ItemHeight = 12;
-            this.originImages.Location = new System.Drawing.Point(12, 247);
+            this.originImages.Location = new System.Drawing.Point(11, 280);
             this.originImages.Name = "originImages";
             this.originImages.Size = new System.Drawing.Size(434, 268);
             this.originImages.TabIndex = 2;
             this.originImages.SelectedIndexChanged += new System.EventHandler(this.originImages_SelectedIndexChanged);
+            this.originImages.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.originImages_MouseDoubleClick);
             // 
             // repeatImages
             // 
             this.repeatImages.FormattingEnabled = true;
             this.repeatImages.ItemHeight = 12;
-            this.repeatImages.Location = new System.Drawing.Point(453, 247);
+            this.repeatImages.Location = new System.Drawing.Point(452, 280);
             this.repeatImages.Name = "repeatImages";
             this.repeatImages.Size = new System.Drawing.Size(440, 268);
             this.repeatImages.TabIndex = 3;
             this.repeatImages.SelectedIndexChanged += new System.EventHandler(this.repeatImages_SelectedIndexChanged);
+            this.repeatImages.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.repeatImages_MouseDoubleClick);
             // 
             // originImage
             // 
-            this.originImage.Location = new System.Drawing.Point(13, 43);
+            this.originImage.Location = new System.Drawing.Point(11, 82);
             this.originImage.Name = "originImage";
-            this.originImage.Size = new System.Drawing.Size(433, 198);
+            this.originImage.Size = new System.Drawing.Size(433, 180);
             this.originImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.originImage.TabIndex = 4;
             this.originImage.TabStop = false;
             // 
             // repeatImage
             // 
-            this.repeatImage.Location = new System.Drawing.Point(453, 43);
+            this.repeatImage.Location = new System.Drawing.Point(452, 82);
             this.repeatImage.Name = "repeatImage";
-            this.repeatImage.Size = new System.Drawing.Size(440, 198);
+            this.repeatImage.Size = new System.Drawing.Size(440, 180);
             this.repeatImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.repeatImage.TabIndex = 5;
             this.repeatImage.TabStop = false;
@@ -129,7 +135,7 @@ namespace RepeatImageDelete
             // repeatNumLabel
             // 
             this.repeatNumLabel.AutoSize = true;
-            this.repeatNumLabel.Location = new System.Drawing.Point(453, 522);
+            this.repeatNumLabel.Location = new System.Drawing.Point(451, 551);
             this.repeatNumLabel.Name = "repeatNumLabel";
             this.repeatNumLabel.Size = new System.Drawing.Size(95, 12);
             this.repeatNumLabel.TabIndex = 8;
@@ -137,7 +143,7 @@ namespace RepeatImageDelete
             // 
             // deleteProgressBar
             // 
-            this.deleteProgressBar.Location = new System.Drawing.Point(453, 538);
+            this.deleteProgressBar.Location = new System.Drawing.Point(453, 566);
             this.deleteProgressBar.Name = "deleteProgressBar";
             this.deleteProgressBar.Size = new System.Drawing.Size(440, 23);
             this.deleteProgressBar.TabIndex = 9;
@@ -155,7 +161,7 @@ namespace RepeatImageDelete
             // currentFileRepeat
             // 
             this.currentFileRepeat.AutoSize = true;
-            this.currentFileRepeat.Location = new System.Drawing.Point(12, 522);
+            this.currentFileRepeat.Location = new System.Drawing.Point(10, 551);
             this.currentFileRepeat.Name = "currentFileRepeat";
             this.currentFileRepeat.Size = new System.Drawing.Size(119, 12);
             this.currentFileRepeat.TabIndex = 11;
@@ -181,11 +187,42 @@ namespace RepeatImageDelete
             this.deleteSelectedAll.UseVisualStyleBackColor = true;
             this.deleteSelectedAll.Click += new System.EventHandler(this.deleteSelectedAll_Click);
             // 
+            // originFileSize
+            // 
+            this.originFileSize.AutoSize = true;
+            this.originFileSize.Location = new System.Drawing.Point(10, 265);
+            this.originFileSize.Name = "originFileSize";
+            this.originFileSize.Size = new System.Drawing.Size(95, 12);
+            this.originFileSize.TabIndex = 14;
+            this.originFileSize.Text = "当前文件大小：0";
+            // 
+            // repeatFileSize
+            // 
+            this.repeatFileSize.AutoSize = true;
+            this.repeatFileSize.Location = new System.Drawing.Point(451, 265);
+            this.repeatFileSize.Name = "repeatFileSize";
+            this.repeatFileSize.Size = new System.Drawing.Size(95, 12);
+            this.repeatFileSize.TabIndex = 15;
+            this.repeatFileSize.Text = "当前文件大小：0";
+            // 
+            // isVideoOn
+            // 
+            this.isVideoOn.AutoSize = true;
+            this.isVideoOn.Location = new System.Drawing.Point(13, 43);
+            this.isVideoOn.Name = "isVideoOn";
+            this.isVideoOn.Size = new System.Drawing.Size(96, 16);
+            this.isVideoOn.TabIndex = 16;
+            this.isVideoOn.Text = "是否扫描视频";
+            this.isVideoOn.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(905, 573);
+            this.ClientSize = new System.Drawing.Size(905, 601);
+            this.Controls.Add(this.isVideoOn);
+            this.Controls.Add(this.repeatFileSize);
+            this.Controls.Add(this.originFileSize);
             this.Controls.Add(this.deleteSelectedAll);
             this.Controls.Add(this.next);
             this.Controls.Add(this.currentFileRepeat);
@@ -209,6 +246,7 @@ namespace RepeatImageDelete
 
         }
 
+
         #endregion
 
         private System.Windows.Forms.Button selectImageFolder;
@@ -225,6 +263,9 @@ namespace RepeatImageDelete
         private System.Windows.Forms.Label currentFileRepeat;
         private System.Windows.Forms.Button next;
         private System.Windows.Forms.Button deleteSelectedAll;
+        private System.Windows.Forms.Label originFileSize;
+        private System.Windows.Forms.Label repeatFileSize;
+        private System.Windows.Forms.CheckBox isVideoOn;
     }
 }
 

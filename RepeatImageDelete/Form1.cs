@@ -20,7 +20,7 @@ namespace RepeatImageDelete
         Dictionary<string, string> originImagesList;
         Dictionary<string, string> originImagesVKList;
         Dictionary<string, List<string>> repeatImageList;
-        List<object> selectedRepeatItem;
+        List<object> selectedRepeatItem = new List<object>();
         int selectedRepeatItemIndex = 0;
         private int repeatNum = 0;
         int currentSelectedRepeatNum = 0;
@@ -99,46 +99,88 @@ namespace RepeatImageDelete
             {
                 if (File.Exists(item.FullName))
                 {
-                    if (item.Extension == ".jpg" || item.Extension == ".gif" || item.Extension == ".png" || item.Extension == ".bmp" || item.Extension == ".mp4" || item.Extension == ".avi" || item.Extension == ".flv")
+                    if (isVideoOn.Checked)
                     {
-                        string fileMd5 = GetMD5HashFromFile(item.FullName);
-                        if (originImagesList.ContainsKey(fileMd5))
+                        if (item.Extension == ".jpg" || item.Extension == ".gif" || item.Extension == ".png" || item.Extension == ".bmp" || item.Extension == ".mp4" || item.Extension == ".avi" || item.Extension == ".flv")
                         {
-                            if (repeatImageList.ContainsKey(fileMd5))
-                            {
-                                if (!repeatImageList[fileMd5].Contains(item.FullName))
-                                {
-                                    repeatImageList[fileMd5].Add(item.FullName);
-                                }
-
-                            }
-                            else
-                            {
-                                List<string> repeatImagesList = new List<string>();
-                                repeatImagesList.Add(item.FullName);
-                                repeatImageList.Add(fileMd5, repeatImagesList);
-                            }
-                            repeatNum++;
-                            _syncContext.Post(setRepeatNumLabel, "重复图片数量：" + repeatNum);
-                            _syncContext.Post(repeatImagesAddItem, item.FullName);
+                            dealFile(item);
                         }
-                        else
-                        {
-                            originImagesVKList.Add(item.FullName, fileMd5);
-                            originImagesList.Add(fileMd5, item.FullName);
-                            _syncContext.Post(setProgress, Convert.ToDouble(scanNum) / Convert.ToDouble(allFileNum) * 100);
-                            _syncContext.Post(originImagesAddItem, item.FullName);
-                            scanNum++;
-                        }
-
                     }
+                    else
+                    {
+                        if (item.Extension == ".jpg" || item.Extension == ".gif" || item.Extension == ".png" || item.Extension == ".bmp")
+                        {
+                            dealFile(item);
+                        }
+                    }
+
                 }
             }
         }
 
+        private void dealFile(FileSystemInfo item)
+        {
+            string fileMd5 = GetMD5HashFromFile(item.FullName);
+            if (originImagesList.ContainsKey(fileMd5))
+            {
+                if (repeatImageList.ContainsKey(fileMd5))
+                {
+                    if (!repeatImageList[fileMd5].Contains(item.FullName))
+                    {
+                        repeatImageList[fileMd5].Add(item.FullName);
+                    }
+
+                }
+                else
+                {
+                    List<string> repeatImagesList = new List<string>();
+                    repeatImagesList.Add(item.FullName);
+                    repeatImageList.Add(fileMd5, repeatImagesList);
+                }
+                repeatNum++;
+                _syncContext.Post(setRepeatNumLabel, "重复图片数量：" + repeatNum);
+                _syncContext.Post(repeatImagesAddItem, item.FullName);
+            }
+            else
+            {
+                originImagesVKList.Add(item.FullName, fileMd5);
+                originImagesList.Add(fileMd5, item.FullName);
+                _syncContext.Post(setProgress, Convert.ToDouble(scanNum) / Convert.ToDouble(allFileNum) * 100);
+                _syncContext.Post(originImagesAddItem, item.FullName);
+                scanNum++;
+            }
+        }
+
+        private void originImages_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = this.originImages.IndexFromPoint(e.Location);
+            if (index!=ListBox.NoMatches)
+            {
+                openFileInExplorer(originImages.SelectedItem.ToString());
+            }
+        }
+
+        private void repeatImages_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = this.repeatImages.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
+            {
+                openFileInExplorer(repeatImages.SelectedItem.ToString());
+            }
+        }
         private void originImagesAddItem(object path)
         {
             originImages.Items.Add(path.ToString());
+        }
+
+        private void openFileInExplorer(string filepath)
+        {
+            if (!System.IO.File.Exists(filepath)) return;
+
+            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe");
+            //string file = @"c:/windows/notepad.exe"; 
+            psi.Arguments = " /select," + filepath;
+            System.Diagnostics.Process.Start(psi); 
         }
 
         private void setRepeatNumLabel(object text)
@@ -204,13 +246,14 @@ namespace RepeatImageDelete
                 return;
             }
             originImage.Load(originImages.SelectedItem.ToString());
+            originFileSize.Text = getFileSize(originImages.SelectedItem.ToString());
             string imagemd5 = originImagesVKList[originImages.SelectedItem.ToString()];
             if (repeatImageList.ContainsKey(imagemd5))
             {
                 currentSelectedRepeatNum = 0;
                 selectedRepeatItemIndex = 0;
                 repeatImages.ClearSelected();
-                selectedRepeatItem = new List<object>();
+                selectedRepeatItem.Clear();
                 foreach (var item in repeatImages.Items)
                 {
                     if (repeatImageList[imagemd5].Contains(item.ToString()))
@@ -229,13 +272,15 @@ namespace RepeatImageDelete
                 checkButtonStatus("");
                 repeatImages.SelectedItem = selectedRepeatItem[0];
                 repeatImageBoxLoad(selectedRepeatItem[0].ToString());
+                repeatFileSize.Text = getFileSize(selectedRepeatItem[0].ToString());
                 currentFileRepeat.Text = "当前图片重复数量：" + currentSelectedRepeatNum;
             }
             else
             {
+                selectedRepeatItem.Clear();
+                selectedRepeatItemIndex = 0;
                 repeatImage.Image = null;
                 currentFileRepeat.Text = "当前图片重复数量：" + 0;
-                MessageBox.Show("该图片没有重复");
             }
         }
 
@@ -273,6 +318,44 @@ namespace RepeatImageDelete
             }
         }
 
+        private string getFileSize(string filepath)
+        {
+            string fileSizeStr = "当前文件大小";
+            FileInfo fileInfo = new FileInfo(filepath);
+            int unit = 0;
+            double fileSize = Math.Round(Convert.ToDouble(fileInfo.Length), 2);
+            while (fileSize > 1024)
+            {
+                fileSize = Math.Round(fileSize / 1024.0, 2);
+                unit++;
+            }
+            fileSizeStr += fileSize;
+            switch (unit)
+            {
+                case 0:
+                    fileSizeStr += "B";
+                    break;
+                case 1:
+                    fileSizeStr += "KB";
+                    break;
+                case 2:
+                    fileSizeStr += "MB";
+                    break;
+                case 3:
+                    fileSizeStr += "GB";
+                    break;
+                case 4:
+                    fileSizeStr += "TB";
+                    break;
+                case 5:
+                    fileSizeStr += "PB";
+                    break;
+                default:
+                    break;
+            }
+            return fileSizeStr;
+        }
+
         private void deleteAll_Click(object sender, EventArgs e)
         {
 
@@ -307,7 +390,18 @@ namespace RepeatImageDelete
         }
         private void setProgress(object progress)
         {
-            deleteProgressBar.Value = Convert.ToInt32(progress);
+            if (Convert.ToInt32(progress)>100)
+            {
+                deleteProgressBar.Value = 100;
+            }
+            else if (Convert.ToInt32(progress)<0)
+            {
+                deleteProgressBar.Value =0;
+            }
+            else
+            {
+                deleteProgressBar.Value = Convert.ToInt32(progress);
+            }
         }
 
         private void initRepeatListBox(object deleteNum)
@@ -315,7 +409,8 @@ namespace RepeatImageDelete
             repeatImageList = new Dictionary<string, List<string>>();
             originImagesList = new Dictionary<string, string>();
             originImagesVKList = new Dictionary<string, string>();
-            repeatImages.Items.Clear();
+            repeatImages.Items.Clear(); 
+            originImages.Items.Clear();
             repeatNum = 0;
             deleteProgressBar.Value = 0;
             var task1 = new Task(() =>
@@ -348,6 +443,7 @@ namespace RepeatImageDelete
             selectedRepeatItemIndex++;
             repeatImageBoxLoad(selectedRepeatItem[selectedRepeatItemIndex % selectedRepeatItem.Count].ToString());
             repeatImages.SelectedItem = selectedRepeatItem[selectedRepeatItemIndex % selectedRepeatItem.Count];
+            repeatFileSize.Text = getFileSize(selectedRepeatItem[selectedRepeatItemIndex % selectedRepeatItem.Count].ToString());
         }
 
         private void checkButtonStatus(object data)
